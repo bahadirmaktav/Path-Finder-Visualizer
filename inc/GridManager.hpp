@@ -4,9 +4,10 @@
 #include "GridParameters.h"
 #include "Cell.hpp"
 
-// INFO : Testing purposes.
-int w1 = 15; int w2 = 30; int w3 = 60;
-int h1 = 10; int h2 = 20; int h3 = 40;
+// INFO : Grid Size Modes
+Vector2D GRID_SIZE_MODE_1(15, 10);
+Vector2D GRID_SIZE_MODE_2(30, 20);
+Vector2D GRID_SIZE_MODE_3(60, 40);
 
 class GridManager {
 public:
@@ -15,10 +16,11 @@ public:
     , totalCell_(0)
     {}
     ~GridManager() {
-        delete[] cells_;
+        DeleteCells();
     }
     void Init() {
-        SetGridCells(w2, h2);    // INFO : Testing purposes.
+        GUI.SetChangeGridSizeFn(std::bind(&ChangeGridSize, this, std::placeholders::_1));
+        SetGridCells(GRID_SIZE_MODE_2.x, GRID_SIZE_MODE_2.y);
     }
     void SetGridCells(const int & wCount, const int & hCount) {
         double cellSizeRltW = ((((WINDOW_WIDTH - CELL_SPACE_PIXEL * 2) / wCount) - CELL_SPACE_PIXEL) / ((double)WINDOW_WIDTH / 2));
@@ -42,7 +44,28 @@ public:
             cells_[i].Render();
         }
     }
-
+private:
+    void DeleteCells() {
+        delete[] cells_;
+    }
+    void ChangeGridSize(int gridSizeMode) {
+        switch(gridSizeMode) {
+        case 1:
+            DeleteCells();
+            SetGridCells(GRID_SIZE_MODE_1.x, GRID_SIZE_MODE_1.y);
+            break;
+        case 2:
+            DeleteCells();
+            SetGridCells(GRID_SIZE_MODE_2.x, GRID_SIZE_MODE_2.y);
+            break;
+        case 3:
+            DeleteCells();
+            SetGridCells(GRID_SIZE_MODE_3.x, GRID_SIZE_MODE_3.y);
+            break;
+        default:
+            break;
+        }
+    }
 private:
     Cell * cells_;
     int totalCell_;

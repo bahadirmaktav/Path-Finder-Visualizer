@@ -15,7 +15,7 @@ include_directories(./inc)
 
 include_directories(./deps/glfw/include)
 include_directories(./deps/glew/include)
-include_directories(./imgui)
+include_directories(./deps/imgui)
 
 link_directories(./deps/glfw/lib)
 link_directories(./deps/glew/lib)

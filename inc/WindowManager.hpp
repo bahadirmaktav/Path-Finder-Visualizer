@@ -8,6 +8,7 @@
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
+#include "GuiManager.hpp"
 #include "GridManager.hpp"
 
 #define WINDOW WindowManager::Instance()
@@ -58,6 +59,7 @@ public:
         glfwSetMouseButtonCallback(window_, mouse_button_callback);
         glfwSetInputMode(window_, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        GUI.Init(window_);
         gridManager_->Init();
     }
     static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -81,6 +83,9 @@ public:
     }
     void RenderGrid() {
         gridManager_->Render();
+    }
+    void RenderGui() {
+        GUI.Render();
     }
 private:
     GLFWwindow * window_;
