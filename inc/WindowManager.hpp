@@ -3,9 +3,12 @@
 
 #include <iostream>
 #include <functional>
+#include <memory>
 
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
+
+#include "GridManager.hpp"
 
 #define WINDOW WindowManager::Instance()
 
@@ -13,6 +16,7 @@ class WindowManager {
 public:
     WindowManager() 
     : window_(nullptr) {
+        gridManager_ = std::make_unique<GridManager>();
         keyCallbackFn_ = [](int key, int action) {};
         mousePosCallbackFn_ = [](double xpos, double ypos) {};
         mouseButtonCallbackFn_ = [](int button, int action) {};
@@ -40,7 +44,7 @@ public:
             throw std::runtime_error("Could not initialize GLFW!");
         }
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-        window_ = glfwCreateWindow(1000, 1000, "Path Finder", NULL, NULL);
+        window_ = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Path Finder Visualizer", NULL, NULL);
         if(!window_) {
             glfwTerminate();
             throw std::runtime_error("Could not create window!");
@@ -54,6 +58,7 @@ public:
         glfwSetMouseButtonCallback(window_, mouse_button_callback);
         glfwSetInputMode(window_, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        gridManager_->Init();
     }
     static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
         keyCallbackFn_(key, action);
@@ -74,8 +79,12 @@ public:
         glfwSwapBuffers(window_);
         glfwPollEvents();
     }
+    void RenderGrid() {
+        gridManager_->Render();
+    }
 private:
     GLFWwindow * window_;
+    std::unique_ptr<GridManager> gridManager_;
     static std::function<void(int, int)> keyCallbackFn_;
     static std::function<void(double, double)> mousePosCallbackFn_;
     static std::function<void(int, int)> mouseButtonCallbackFn_;
