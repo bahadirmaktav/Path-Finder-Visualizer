@@ -28,6 +28,6 @@ file(GLOB SOURCES
     ./deps/imgui/*.h
     ./deps/imgui/*.cpp)
 
-add_executable(PathFinderVisualizer main.cpp ${SOURCES})
+add_executable(PathFinderVisualizer ${SOURCES})
 
 target_link_libraries(PathFinderVisualizer glew32 glfw3 OpenGL32)
