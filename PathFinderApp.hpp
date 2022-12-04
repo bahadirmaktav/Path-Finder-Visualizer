@@ -6,6 +6,8 @@
 #include <thread>
 
 #include "WindowManager.hpp"
+#include "GuiManager.hpp"
+#include "GridManager.hpp"
 
 class PathFinderApp {
 public:
@@ -19,12 +21,14 @@ public:
     PathFinderApp & operator = (const PathFinderApp &) = delete;
     void Init() {
         WINDOW.Init();
+        GUI.Init(WINDOW.GetGlfwWindow());
+        GRID.Init();
     }
     void Run() {
         while(true) {
             WINDOW.PreRender();
-            WINDOW.RenderGrid();
-            WINDOW.RenderGui();
+            GRID.Render();
+            GUI.Render();
             WINDOW.PostRender();
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }

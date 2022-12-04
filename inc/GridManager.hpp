@@ -1,13 +1,19 @@
 #ifndef GRID_MANAGER_HPP_
 #define GRID_MANAGER_HPP_
 
+#include <functional>
+
 #include "GridParameters.h"
 #include "Cell.hpp"
+#include "WindowManager.hpp"
+#include "GuiManager.hpp"
 
 // INFO : Grid Size Modes
 Vector2D GRID_SIZE_MODE_1(15, 10);
 Vector2D GRID_SIZE_MODE_2(30, 20);
 Vector2D GRID_SIZE_MODE_3(60, 40);
+
+#define GRID GridManager::Instance()
 
 class GridManager {
 public:
@@ -18,7 +24,14 @@ public:
     ~GridManager() {
         DeleteCells();
     }
+    static GridManager & Instance() {
+        static GridManager gridManager;
+        return gridManager;
+    }
+    GridManager(const GridManager &) = delete;
+    GridManager & operator = (const GridManager &) = delete;
     void Init() {
+        WINDOW.SetMousePosCallbackFn(std::bind(&MousePosHandler, this, std::placeholders::_1, std::placeholders::_2));
         GUI.SetChangeGridSizeFn(std::bind(&ChangeGridSize, this, std::placeholders::_1));
         SetGridCells(GRID_SIZE_MODE_2.x, GRID_SIZE_MODE_2.y);
     }
@@ -65,6 +78,9 @@ private:
         default:
             break;
         }
+    }
+    void MousePosHandler(double xpos, double ypos) {
+        std::cout << "x : " << xpos << ", y : " << ypos << std::endl;
     }
 private:
     Cell * cells_;

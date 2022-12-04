@@ -8,8 +8,7 @@
 #include "GL/glew.h"
 #include "GLFW/glfw3.h"
 
-#include "GuiManager.hpp"
-#include "GridManager.hpp"
+#include "GridParameters.h"
 
 #define WINDOW WindowManager::Instance()
 
@@ -17,7 +16,6 @@ class WindowManager {
 public:
     WindowManager() 
     : window_(nullptr) {
-        gridManager_ = std::make_unique<GridManager>();
         keyCallbackFn_ = [](int key, int action) {};
         mousePosCallbackFn_ = [](double xpos, double ypos) {};
         mouseButtonCallbackFn_ = [](int button, int action) {};
@@ -31,6 +29,9 @@ public:
     }
     WindowManager(const WindowManager &) = delete;
     WindowManager & operator = (const WindowManager &) = delete;
+    GLFWwindow * GetGlfwWindow() {
+        return window_;
+    }
     void SetKeyCallbackFn(std::function<void(int, int)> keyCb) {
         keyCallbackFn_ = keyCb;
     }
@@ -59,8 +60,6 @@ public:
         glfwSetMouseButtonCallback(window_, mouse_button_callback);
         glfwSetInputMode(window_, GLFW_STICKY_MOUSE_BUTTONS, GLFW_TRUE);
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        GUI.Init(window_);
-        gridManager_->Init();
     }
     static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
         keyCallbackFn_(key, action);
@@ -81,15 +80,8 @@ public:
         glfwSwapBuffers(window_);
         glfwPollEvents();
     }
-    void RenderGrid() {
-        gridManager_->Render();
-    }
-    void RenderGui() {
-        GUI.Render();
-    }
 private:
     GLFWwindow * window_;
-    std::unique_ptr<GridManager> gridManager_;
     static std::function<void(int, int)> keyCallbackFn_;
     static std::function<void(double, double)> mousePosCallbackFn_;
     static std::function<void(int, int)> mouseButtonCallbackFn_;
