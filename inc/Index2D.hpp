@@ -2,9 +2,9 @@
 #define INDEX_2D_HPP_
 
 struct Index2D {
-    double i;
-    double j;
-    Index2D(double iI, double iJ) 
+    int i;
+    int j;
+    Index2D(int iI, int iJ) 
     : i(iI)
     , j(iJ) 
     {}
