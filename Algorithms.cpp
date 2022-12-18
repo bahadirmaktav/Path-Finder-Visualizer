@@ -35,7 +35,8 @@ void DfsPathFinder(Index2D startInd, Index2D endInd, Node *** matrix) {
 }
 */
 
-int main() {
+/* Test main
+int main1() {
     int ROW_NUM = 5;
     int COLOUMN_NUM = 6;
     PathFindingAlgorithmFactory algFac;
@@ -56,3 +57,4 @@ int main() {
     delete pfAlg;
     return 0;
 }
+*/

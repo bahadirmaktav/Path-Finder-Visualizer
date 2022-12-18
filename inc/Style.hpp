@@ -11,10 +11,13 @@ struct Style {
         PEN_MAX
     };
     enum Color{
-        COLOR_EMPTY = 0,     // Empty Cells
-        COLOR_OBSTACLE,      // Obstacle Cells
+        COLOR_EMPTY = 0,     // Empty Cell
+        COLOR_OBSTACLE,      // Obstacle Cell
         COLOR_START,         // Start Cell
-        COLOR_FINAL          // Final Cell
+        COLOR_FINAL,         // Final Cell
+        COLOR_OPENED,        // Opened Cell
+        COLOR_CLOSED,        // Closed Cell
+        COLOR_SEARCH_PATH    // Search Path Cell
     };
     Style() {}
     static void SetColor(int color) {
@@ -30,6 +33,15 @@ struct Style {
             break;
         case Style::Color::COLOR_FINAL:
             glColor3f(1, 1, 0);
+            break;
+        case Style::Color::COLOR_OPENED:
+            glColor3f(0, 1, 0);
+            break;
+        case Style::Color::COLOR_CLOSED:
+            glColor3f(1, 0, 0);
+            break;
+        case Style::Color::COLOR_SEARCH_PATH:
+            glColor3f(0, 0, 0.8f);
             break;
         default:
             break;

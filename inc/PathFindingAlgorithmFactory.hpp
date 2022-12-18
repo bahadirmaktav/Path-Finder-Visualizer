@@ -6,17 +6,23 @@
 
 class PathFindingAlgorithmFactory {
 public:
+    enum Algorithm {
+        TYPE__BFS = 0,
+        TYPE__DFS,
+        TPYE__DIJKSTRA,
+        TYPE__A_STAR
+    };
     PathFindingAlgorithmFactory() {}
     ~PathFindingAlgorithmFactory() {}
-    PathFindingAlgorithmInterface * GetPathFindingAlgorithm(int selectedAlgorithmType) {
+    static PathFindingAlgorithmInterface * GetPathFindingAlgorithm(int selectedAlgorithmType) {
         PathFindingAlgorithmInterface * pathFinder;
-        if(selectedAlgorithmType == 0) {            // BFS
+        if(selectedAlgorithmType == Algorithm::TYPE__BFS) {
             pathFinder = new BfsAlgorithm();
-        } else if(selectedAlgorithmType == 1) {     // DFS
+        } else if(selectedAlgorithmType == Algorithm::TYPE__DFS) {
 
-        } else if(selectedAlgorithmType == 2) {     // Dijkstra
+        } else if(selectedAlgorithmType == Algorithm::TPYE__DIJKSTRA) {
 
-        } else if(selectedAlgorithmType == 3) {     // A Star
+        } else if(selectedAlgorithmType == Algorithm::TYPE__A_STAR) {
 
         }
         return pathFinder;
