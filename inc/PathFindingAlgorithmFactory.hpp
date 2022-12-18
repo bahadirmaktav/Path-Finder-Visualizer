@@ -3,6 +3,8 @@
 
 #include "PathFindingAlgorithmInterface.hpp"
 #include "BfsAlgorithm.hpp"
+#include "DfsAlgorithm.hpp"
+#include "AStarAlgorithm.hpp"
 
 class PathFindingAlgorithmFactory {
 public:
@@ -19,11 +21,11 @@ public:
         if(selectedAlgorithmType == Algorithm::TYPE__BFS) {
             pathFinder = new BfsAlgorithm();
         } else if(selectedAlgorithmType == Algorithm::TYPE__DFS) {
-
+            pathFinder = new DfsAlgorithm();
         } else if(selectedAlgorithmType == Algorithm::TPYE__DIJKSTRA) {
 
         } else if(selectedAlgorithmType == Algorithm::TYPE__A_STAR) {
-
+            pathFinder = new AStarAlgorithm();
         }
         return pathFinder;
     }

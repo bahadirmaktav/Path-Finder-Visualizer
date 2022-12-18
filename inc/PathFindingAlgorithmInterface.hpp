@@ -17,6 +17,7 @@ public:
     virtual void CreateNodeMatrix(int rowNum, int coloumnNum) = 0;
     virtual void StartPathFindingSimulation(Index2D startInd, Index2D endInd) = 0;
     virtual void FindShortestPath(Index2D startInd, Index2D endInd) = 0;
+    virtual void ResetNodeMatrix() = 0;
 };
 
 #endif // PATH_FINDING_ALGORITHM_INTERFACE_HPP_

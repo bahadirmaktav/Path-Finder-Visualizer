@@ -35,7 +35,7 @@ public:
     , mouseAction_(0)
     , mouseButton_(0)
     , pathFinder_(nullptr)
-    , activeAlgorithmMode_(0)
+    , activeAlgorithmMode_(3)
     {}
     ~GridManager() {
         DeleteCells();
@@ -87,6 +87,9 @@ private:
         activePen_ = activePen;
     }
     void ClearCellMatrix() {
+        pathFinder_->ResetNodeMatrix();
+        Index2D strInd(0, 0); Index2D finInd(0, 1);
+        startNodeInd_ = strInd; finalNodeInd_ = finInd;
         for(int i = 0; i < totalCell_; i++) {
             cells_[i].color = Style::Color::COLOR_EMPTY;
         }
@@ -95,19 +98,18 @@ private:
         delete[] cells_;
     }
     void ChangeGridSize(int gridSizeMode) {
+        ClearCellMatrix();
+        DeleteCells();
         switch(gridSizeMode) {
         case 1:
-            DeleteCells();
             SetGridCells(GRID_SIZE_MODE_1.x, GRID_SIZE_MODE_1.y);
             pathFinder_->CreateNodeMatrix(rowNum_, columnNum_);
             break;
         case 2:
-            DeleteCells();
             SetGridCells(GRID_SIZE_MODE_2.x, GRID_SIZE_MODE_2.y);
             pathFinder_->CreateNodeMatrix(rowNum_, columnNum_);
             break;
         case 3:
-            DeleteCells();
             SetGridCells(GRID_SIZE_MODE_3.x, GRID_SIZE_MODE_3.y);
             pathFinder_->CreateNodeMatrix(rowNum_, columnNum_);
             break;

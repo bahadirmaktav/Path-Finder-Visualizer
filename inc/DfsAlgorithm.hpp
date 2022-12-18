@@ -1,5 +1,5 @@
-#ifndef BFS_ALGORITHM_HPP_
-#define BFS_ALGORITHM_HPP_
+#ifndef DFS_ALGORITHM_HPP_
+#define DFS_ALGORITHM_HPP_
 
 #include <iostream>
 #include <deque>
@@ -7,15 +7,15 @@
 
 #include "PathFindingAlgorithmInterface.hpp"
 
-class BfsAlgorithm : public PathFindingAlgorithmInterface {
+class DfsAlgorithm : public PathFindingAlgorithmInterface {
 public:
-    BfsAlgorithm() 
+    DfsAlgorithm() 
     : matrix_(nullptr)
     , currentNode_(nullptr)
     , rowNum_(0)
     , columnNum_(0)
     {}
-    ~BfsAlgorithm() {}
+    ~DfsAlgorithm() {}
     Node *** GetNodeMatrix() {
         return matrix_;
     }
@@ -85,10 +85,10 @@ public:
                 std::cout << "There is no shortest way start to end cell !" << std::endl;
                 return;
             }
-            Node * frontNode = openedList.front();
-            openedSet_.erase(frontNode);
-            openedList.pop_front();
-            currentNode_ = frontNode;
+            Node * backNode = openedList.back();
+            openedSet_.erase(backNode);
+            openedList.pop_back();
+            currentNode_ = backNode;
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
         startNode->parent = nullptr;

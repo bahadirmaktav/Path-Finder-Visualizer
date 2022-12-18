@@ -1,5 +1,7 @@
-#ifndef BFS_ALGORITHM_HPP_
-#define BFS_ALGORITHM_HPP_
+#ifndef A_STAR_ALGORITHM_HPP_
+#define A_STAR_ALGORITHM_HPP_
+
+#include <math.h>
 
 #include <iostream>
 #include <deque>
@@ -7,15 +9,15 @@
 
 #include "PathFindingAlgorithmInterface.hpp"
 
-class BfsAlgorithm : public PathFindingAlgorithmInterface {
+class AStarAlgorithm : public PathFindingAlgorithmInterface {
 public:
-    BfsAlgorithm() 
+    AStarAlgorithm() 
     : matrix_(nullptr)
     , currentNode_(nullptr)
     , rowNum_(0)
     , columnNum_(0)
     {}
-    ~BfsAlgorithm() {}
+    ~AStarAlgorithm() {}
     Node *** GetNodeMatrix() {
         return matrix_;
     }
@@ -56,6 +58,7 @@ public:
                     matrix_[r][c]->adjacents[3] = matrix_[r][c - 1];
                 }
                 matrix_[r][c]->indId = r * columnNum + c;
+                matrix_[r][c]->cost = 0;
             }
         }
     }
@@ -67,31 +70,42 @@ public:
         th.detach();
     }
     void FindShortestPath(Index2D startInd, Index2D endInd) override {
-        std::deque<Node *> openedList;
-        Node * endNode = matrix_[endInd.i][endInd.j];
-        Node * startNode = matrix_[startInd.i][startInd.j];
-        currentNode_ = startNode;
-        while(currentNode_ != endNode) {
+        openedSet_.insert(matrix_[startInd.i][startInd.j]);
+        while(true) {
+            currentNode_ = GetLowestCostNode();
+            openedSet_.erase(currentNode_);
             closedSet_.insert(currentNode_);
-            for(int i = 0; i < 4; i++) {
-                if(currentNode_->adjacents[i] != nullptr && currentNode_->adjacents[i]->traversable && 
-                    (openedSet_.find(currentNode_->adjacents[i]) == openedSet_.end()) && (closedSet_.find(currentNode_->adjacents[i]) == closedSet_.end())) {
-                    openedSet_.insert(currentNode_->adjacents[i]);
-                    openedList.push_back(currentNode_->adjacents[i]);
-                    currentNode_->adjacents[i]->parent = currentNode_;
+            if(currentNode_ == matrix_[endInd.i][endInd.j]) {
+                break;
+            }
+            int current_PathLong = 0;
+            Node * current_PathNode = currentNode_->parent;
+            while(current_PathNode != nullptr) {
+                current_PathLong += 10;
+                current_PathNode = current_PathNode->parent;
+            }
+            for(Node * neighbour : currentNode_->adjacents) {
+                if(neighbour == nullptr || !neighbour->traversable || closedSet_.find(neighbour) != closedSet_.end()) {
+                    continue;
+                }
+                int oldPathLong = 0;
+                Node * oldPathNode = neighbour->parent;
+                while(oldPathNode != nullptr) {
+                    oldPathLong += 10;
+                    oldPathNode = oldPathNode->parent;
+                }
+                if(current_PathLong < oldPathLong || openedSet_.find(neighbour) == openedSet_.end()) {
+                    int gCostBuff = current_PathLong + 10;
+                    int hCostBuff = sqrt(pow(abs(endInd.i - neighbour->indPos.i), 2) + pow(abs(endInd.j - neighbour->indPos.j), 2)) * 10;
+                    neighbour->cost = gCostBuff + hCostBuff;
+                    neighbour->parent = currentNode_;
+                    if(openedSet_.find(neighbour) == openedSet_.end()) {
+                        openedSet_.insert(neighbour);
+                    }
                 }
             }
-            if(openedList.empty()) {
-                std::cout << "There is no shortest way start to end cell !" << std::endl;
-                return;
-            }
-            Node * frontNode = openedList.front();
-            openedSet_.erase(frontNode);
-            openedList.pop_front();
-            currentNode_ = frontNode;
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
-        startNode->parent = nullptr;
     }
     void ResetNodeMatrix() {
         closedSet_.clear();
@@ -116,6 +130,15 @@ private:
         delete[] matrix_;
         matrix_ = nullptr;
     }
+    Node * GetLowestCostNode() {
+        Node * lowestCostNode = *openedSet_.begin();
+        for(auto itr = openedSet_.begin(); itr != openedSet_.end(); ++itr) {
+            Node * n = *itr;
+            if(n->cost < lowestCostNode->cost)
+                lowestCostNode = n;
+        }
+        return lowestCostNode;
+    }
 private:
     Node *** matrix_;
     std::unordered_set<Node *> closedSet_;
@@ -125,4 +148,4 @@ private:
     int columnNum_;
 };
 
-#endif // BFS_ALGORITHM_HPP_
+#endif // A_STAR_ALGORITHM_HPP_

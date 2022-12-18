@@ -9,11 +9,13 @@ struct Node {
     Node * adjacents[4];   // [0] = UP, [1] = RIGHT, [2] = DOWN, [3] = LEFT
     Node * parent;
     bool traversable;
+    int cost;
     Node() 
     : indId(-1)
     , adjacents{nullptr, nullptr, nullptr, nullptr}
     , parent(nullptr)
-    , traversable(true) 
+    , traversable(true)
+    , cost(0) 
     {}
 };
 
