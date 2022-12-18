@@ -11,6 +11,7 @@ endif()
 add_compile_definitions(GLEW_STATIC)
 
 include_directories(.)
+include_directories(./alg)
 include_directories(./inc)
 
 include_directories(./deps/glfw/include)

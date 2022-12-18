@@ -5,6 +5,7 @@
 #include "BfsAlgorithm.hpp"
 #include "DfsAlgorithm.hpp"
 #include "AStarAlgorithm.hpp"
+#include "DijkstraAlgorithm.hpp"
 
 class PathFindingAlgorithmFactory {
 public:
@@ -23,7 +24,7 @@ public:
         } else if(selectedAlgorithmType == Algorithm::TYPE__DFS) {
             pathFinder = new DfsAlgorithm();
         } else if(selectedAlgorithmType == Algorithm::TPYE__DIJKSTRA) {
-
+            pathFinder = new DijkstraAlgorithm();
         } else if(selectedAlgorithmType == Algorithm::TYPE__A_STAR) {
             pathFinder = new AStarAlgorithm();
         }

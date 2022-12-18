@@ -56,6 +56,7 @@ public:
         GUI.SetActiveAlgorithmFn(std::bind(&GridManager::SetActiveAlgorithmMode, this, std::placeholders::_1));
         GUI.SetStartSimulationFn(std::bind(&GridManager::StartSimulation, this));
         GUI.SetStopSimulationFn(std::bind(&GridManager::StopSimulation, this));
+        GUI.SetAlgorithmSpeedCallbackFn(std::bind(&GridManager::SetAlgorithmSpeed, this, std::placeholders::_1));
         SetGridCells(GRID_SIZE_MODE_2.x, GRID_SIZE_MODE_2.y);
         pathFinder_ = PathFindingAlgorithmFactory::GetPathFindingAlgorithm(activeAlgorithmMode_);
         pathFinder_->CreateNodeMatrix(rowNum_, columnNum_);
@@ -221,6 +222,9 @@ private:
         int rowIndex = resPos.y / (CELL_SPACE_PIXEL + cellSize_);
         Index2D indexPos(rowIndex, columnIndex);
         return indexPos;
+    }
+    void SetAlgorithmSpeed(float algorithmSpeed) {
+        pathFinder_->SetAlgorithmSpeed(algorithmSpeed);
     }
 private:
     Cell * cells_;

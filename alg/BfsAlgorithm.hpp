@@ -15,6 +15,7 @@ public:
     , rowNum_(0)
     , columnNum_(0)
     , isSimulationStarted_(false)
+    , algorithmSpeed_(1)
     {}
     ~BfsAlgorithm() {}
     Node *** GetNodeMatrix() {
@@ -100,7 +101,7 @@ public:
             openedSet_.erase(frontNode);
             openedList.pop_front();
             currentNode_ = frontNode;
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            std::this_thread::sleep_for(std::chrono::milliseconds(int(100 / algorithmSpeed_)));
         }
         startNode->parent = nullptr;
     }
@@ -115,6 +116,9 @@ public:
                 matrix_[i][j]->cost = 0;
             }
         }
+    }
+    void SetAlgorithmSpeed(float algorithmSpeed) {
+        algorithmSpeed_ = algorithmSpeed;
     }
 private:
     void ClearNodeMatrix(int rowNum, int columnNum) {
@@ -135,6 +139,7 @@ private:
     int rowNum_;
     int columnNum_;
     bool isSimulationStarted_;
+    float algorithmSpeed_;
 };
 
 #endif // BFS_ALGORITHM_HPP_

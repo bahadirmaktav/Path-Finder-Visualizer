@@ -21,6 +21,7 @@ public:
     virtual bool IsSimulationStarted() = 0;
     virtual void FindShortestPath(Index2D startInd, Index2D endInd) = 0;
     virtual void ResetNodeMatrix() = 0;
+    virtual void SetAlgorithmSpeed(float algorithmSpeed) = 0;
 };
 
 #endif // PATH_FINDING_ALGORITHM_INTERFACE_HPP_

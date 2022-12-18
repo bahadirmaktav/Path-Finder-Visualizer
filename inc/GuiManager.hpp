@@ -16,13 +16,15 @@ public:
     , gridSizeMode_(2)
     , selectedAlgoritmType_(0)
     , penTypeNames_{"Obstacle", "Start", "Final"} 
-    , algorithmTypeNames_{"BFS", "DFS", "Dijkstra", "A*"} {
+    , algorithmTypeNames_{"BFS", "DFS", "Dijkstra", "A*"}
+    , algorithmSpeed_(1) {
         changeGridSizeFn_ = [](int gridSizeMode) {};
         setActivePenFn_ = [](int activePen) {};
         clearCellMatrixFn_ = []() {};
         setActiveAlgorithmFn_ = [](int activeAlgorithm) {};
         startSimulationFn_ = []() {};
         stopSimulationFn_ = []() {};
+        setAlgorithmSpeedFn_ = [](float algorithmSpeed_) {};
     }
     ~GuiManager() {
         ImGui_ImplOpenGL3_Shutdown();
@@ -58,6 +60,9 @@ public:
     }
     void SetStopSimulationFn(std::function<void()> stopSimulationCb) {
         stopSimulationFn_ = stopSimulationCb;
+    }
+    void SetAlgorithmSpeedCallbackFn(std::function<void(float)> setAlgorithmSpeedCb) {
+        setAlgorithmSpeedFn_ = setAlgorithmSpeedCb;
     }
     void Init(GLFWwindow * window) {
         IMGUI_CHECKVERSION();
@@ -103,6 +108,9 @@ private:
             if(ImGui::Button("Stop Simulation")) {
                 stopSimulationFn_();
             }
+            if(ImGui::SliderFloat("Algorithm Speed", &algorithmSpeed_, 1.0f, 3.0f)) {
+                setAlgorithmSpeedFn_(algorithmSpeed_);
+            }
         ImGui::End();
     }
     void HelpWindow() {
@@ -121,12 +129,14 @@ private:
     int selectedAlgoritmType_;
     const char * penTypeNames_[3];
     const char * algorithmTypeNames_[4];
+    float algorithmSpeed_;
     std::function<void(int)> changeGridSizeFn_;
     std::function<void(int)> setActivePenFn_;
     std::function<void()> clearCellMatrixFn_;
     std::function<void(int)> setActiveAlgorithmFn_;
     std::function<void()> startSimulationFn_;
     std::function<void()> stopSimulationFn_;
+    std::function<void(float)> setAlgorithmSpeedFn_;
 };
 
 #endif // GUI_MANAGER_HPP_

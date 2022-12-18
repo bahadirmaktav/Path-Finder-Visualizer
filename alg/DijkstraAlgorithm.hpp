@@ -1,24 +1,25 @@
-#ifndef A_STAR_ALGORITHM_HPP_
-#define A_STAR_ALGORITHM_HPP_
-
-#include <math.h>
+#ifndef DIJKSTRA_ALGORITHM_HPP_
+#define DIJKSTRA_ALGORITHM_HPP_
 
 #include <iostream>
 #include <deque>
 #include <thread>
+#include <unordered_map>
+#include <algorithm>
 
 #include "PathFindingAlgorithmInterface.hpp"
 
-class AStarAlgorithm : public PathFindingAlgorithmInterface {
+class DijkstraAlgorithm : public PathFindingAlgorithmInterface {
 public:
-    AStarAlgorithm() 
+    DijkstraAlgorithm() 
     : matrix_(nullptr)
     , currentNode_(nullptr)
     , rowNum_(0)
     , columnNum_(0)
     , isSimulationStarted_(false)
+    , algorithmSpeed_(1)
     {}
-    ~AStarAlgorithm() {}
+    ~DijkstraAlgorithm() {}
     Node *** GetNodeMatrix() {
         return matrix_;
     }
@@ -62,7 +63,7 @@ public:
                     matrix_[r][c]->adjacents[3] = matrix_[r][c - 1];
                 }
                 matrix_[r][c]->indId = r * columnNum + c;
-                matrix_[r][c]->cost = 0;
+                matrix_[r][c]->cost = 9999999;
             }
         }
     }
@@ -81,42 +82,35 @@ public:
         return isSimulationStarted_;
     }
     void FindShortestPath(Index2D startInd, Index2D endInd) override {
-        openedSet_.insert(matrix_[startInd.i][startInd.j]);
-        while(isSimulationStarted_) {
-            currentNode_ = GetLowestCostNode();
-            openedSet_.erase(currentNode_);
+        std::unordered_map<Node *, int> openedList;
+        Node * endNode = matrix_[endInd.i][endInd.j];
+        Node * startNode = matrix_[startInd.i][startInd.j];
+        startNode->cost = 0;
+        currentNode_ = startNode;
+        closedSet_.insert(currentNode_);
+        while(isSimulationStarted_ && currentNode_ != endNode) {
+            for(int i = 0; i < 4; i++) {
+                if(currentNode_->adjacents[i] != nullptr && currentNode_->adjacents[i]->traversable && 
+                    (openedSet_.find(currentNode_->adjacents[i]) == openedSet_.end()) && (closedSet_.find(currentNode_->adjacents[i]) == closedSet_.end())) {
+                    currentNode_->adjacents[i]->cost = currentNode_->cost + 1;
+                    openedSet_.insert(currentNode_->adjacents[i]);
+                    openedList.insert(std::make_pair(currentNode_->adjacents[i], currentNode_->adjacents[i]->cost));
+                    currentNode_->adjacents[i]->parent = currentNode_;
+                }
+            }
+            if(openedList.empty()) {
+                std::cout << "There is no shortest way start to end cell !" << std::endl;
+                return;
+            }
+            auto smallestIterator = std::min_element(openedList.begin(), openedList.end(), [](decltype(openedList)::value_type& l, decltype(openedList)::value_type& r) -> bool { return l.second < r.second; });
+            Node * smallestCostNode = smallestIterator->first;
+            openedSet_.erase(smallestCostNode);
+            openedList.erase(smallestCostNode);
+            currentNode_ = smallestCostNode;
             closedSet_.insert(currentNode_);
-            if(currentNode_ == matrix_[endInd.i][endInd.j]) {
-                break;
-            }
-            int current_PathLong = 0;
-            Node * current_PathNode = currentNode_->parent;
-            while(current_PathNode != nullptr) {
-                current_PathLong += 10;
-                current_PathNode = current_PathNode->parent;
-            }
-            for(Node * neighbour : currentNode_->adjacents) {
-                if(neighbour == nullptr || !neighbour->traversable || closedSet_.find(neighbour) != closedSet_.end()) {
-                    continue;
-                }
-                int oldPathLong = 0;
-                Node * oldPathNode = neighbour->parent;
-                while(oldPathNode != nullptr) {
-                    oldPathLong += 10;
-                    oldPathNode = oldPathNode->parent;
-                }
-                if(current_PathLong < oldPathLong || openedSet_.find(neighbour) == openedSet_.end()) {
-                    int gCostBuff = current_PathLong + 10;
-                    int hCostBuff = sqrt(pow(abs(endInd.i - neighbour->indPos.i), 2) + pow(abs(endInd.j - neighbour->indPos.j), 2)) * 10;
-                    neighbour->cost = gCostBuff + hCostBuff;
-                    neighbour->parent = currentNode_;
-                    if(openedSet_.find(neighbour) == openedSet_.end()) {
-                        openedSet_.insert(neighbour);
-                    }
-                }
-            }
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            std::this_thread::sleep_for(std::chrono::milliseconds(int(100 / algorithmSpeed_)));
         }
+        startNode->parent = nullptr;
     }
     void ResetNodeMatrix() {
         closedSet_.clear();
@@ -126,9 +120,12 @@ public:
             for(int j = 0; j < columnNum_; j++) {
                 matrix_[i][j]->parent = nullptr;
                 matrix_[i][j]->traversable = true;
-                matrix_[i][j]->cost = 0;
+                matrix_[i][j]->cost = 9999999;
             }
         }
+    }
+    void SetAlgorithmSpeed(float algorithmSpeed) {
+        algorithmSpeed_ = algorithmSpeed;
     }
 private:
     void ClearNodeMatrix(int rowNum, int columnNum) {
@@ -141,15 +138,6 @@ private:
         delete[] matrix_;
         matrix_ = nullptr;
     }
-    Node * GetLowestCostNode() {
-        Node * lowestCostNode = *openedSet_.begin();
-        for(auto itr = openedSet_.begin(); itr != openedSet_.end(); ++itr) {
-            Node * n = *itr;
-            if(n->cost < lowestCostNode->cost)
-                lowestCostNode = n;
-        }
-        return lowestCostNode;
-    }
 private:
     Node *** matrix_;
     std::unordered_set<Node *> closedSet_;
@@ -158,6 +146,7 @@ private:
     int rowNum_;
     int columnNum_;
     bool isSimulationStarted_;
+    float algorithmSpeed_;
 };
 
-#endif // A_STAR_ALGORITHM_HPP_
+#endif // DIJKSTRA_ALGORITHM_HPP_
