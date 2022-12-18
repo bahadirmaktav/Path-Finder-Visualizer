@@ -14,10 +14,15 @@ public:
     GuiManager()
     : io_(nullptr)
     , gridSizeMode_(2)
-    , penTypeNames_{"Obstacle", "Start", "Final"} {
+    , selectedAlgoritmType_(0)
+    , penTypeNames_{"Obstacle", "Start", "Final"} 
+    , algorithmTypeNames_{"BFS", "DFS", "Dijkstra", "A*"} {
         changeGridSizeFn_ = [](int gridSizeMode) {};
         setActivePenFn_ = [](int activePen) {};
         clearCellMatrixFn_ = []() {};
+        setActiveAlgorithmFn_ = [](int activeAlgorithm) {};
+        startSimulationFn_ = []() {};
+        stopSimulationFn_ = []() {};
     }
     ~GuiManager() {
         ImGui_ImplOpenGL3_Shutdown();
@@ -30,6 +35,12 @@ public:
     }
     GuiManager(const GuiManager &) = delete;
     GuiManager & operator = (const GuiManager &) = delete;
+    ImGuiIO * GetGuiIO() {
+        return io_;
+    }
+    void SetSelectedPenType(int selectedPenType) {
+        selectedPenType_ = selectedPenType;
+    }
     void SetChangeGridSizeFn(std::function<void(int)> changeGridSizeCb) {
         changeGridSizeFn_ = changeGridSizeCb;
     }
@@ -38,6 +49,15 @@ public:
     }
     void SetClearCellMatrixFn(std::function<void()> clearCellMatrixCb) {
         clearCellMatrixFn_ = clearCellMatrixCb;
+    }
+    void SetActiveAlgorithmFn(std::function<void(int)> setActiveAlgorithmCb) {
+        setActiveAlgorithmFn_ = setActiveAlgorithmCb;
+    }
+    void SetStartSimulationFn(std::function<void()> startSimulationCb) {
+        startSimulationFn_ = startSimulationCb;
+    }
+    void SetStopSimulationFn(std::function<void()> stopSimulationCb) {
+        stopSimulationFn_ = stopSimulationCb;
     }
     void Init(GLFWwindow * window) {
         IMGUI_CHECKVERSION();
@@ -73,6 +93,16 @@ private:
             if(ImGui::Button("Clear Cell Matrix")) {
                 clearCellMatrixFn_();
             }
+            if(ImGui::Combo("Active Algorithm", &selectedAlgoritmType_, algorithmTypeNames_, IM_ARRAYSIZE(algorithmTypeNames_))) {
+                setActiveAlgorithmFn_(selectedAlgoritmType_);
+            }
+            if(ImGui::Button("Start Simulation")) {
+                startSimulationFn_();
+            }
+            ImGui::SameLine();
+            if(ImGui::Button("Stop Simulation")) {
+                stopSimulationFn_();
+            }
         ImGui::End();
     }
     void HelpWindow() {
@@ -88,10 +118,15 @@ private:
     ImGuiIO * io_;
     int gridSizeMode_;
     int selectedPenType_;
+    int selectedAlgoritmType_;
     const char * penTypeNames_[3];
+    const char * algorithmTypeNames_[4];
     std::function<void(int)> changeGridSizeFn_;
     std::function<void(int)> setActivePenFn_;
     std::function<void()> clearCellMatrixFn_;
+    std::function<void(int)> setActiveAlgorithmFn_;
+    std::function<void()> startSimulationFn_;
+    std::function<void()> stopSimulationFn_;
 };
 
 #endif // GUI_MANAGER_HPP_

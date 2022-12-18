@@ -14,10 +14,14 @@ public:
     , currentNode_(nullptr)
     , rowNum_(0)
     , columnNum_(0)
+    , isSimulationStarted_(false)
     {}
     ~DfsAlgorithm() {}
     Node *** GetNodeMatrix() {
         return matrix_;
+    }
+    void SetNodeMatrix(Node *** matrix) {
+        matrix_ = matrix;
     }
     Node * GetCurrentNode() {
         return currentNode_;
@@ -63,15 +67,22 @@ public:
         closedSet_.clear();
         openedSet_.clear();
         currentNode_ = nullptr;
+        isSimulationStarted_ = true;
         std::thread th(&FindShortestPath, this, startInd, endInd);
         th.detach();
+    }
+    void StopPathFindingSimulation() {
+        isSimulationStarted_ = false;
+    }
+    bool IsSimulationStarted() {
+        return isSimulationStarted_;
     }
     void FindShortestPath(Index2D startInd, Index2D endInd) override {
         std::deque<Node *> openedList;
         Node * endNode = matrix_[endInd.i][endInd.j];
         Node * startNode = matrix_[startInd.i][startInd.j];
         currentNode_ = startNode;
-        while(currentNode_ != endNode) {
+        while(isSimulationStarted_ && currentNode_ != endNode) {
             closedSet_.insert(currentNode_);
             for(int i = 0; i < 4; i++) {
                 if(currentNode_->adjacents[i] != nullptr && currentNode_->adjacents[i]->traversable && 
@@ -123,6 +134,7 @@ private:
     Node * currentNode_;
     int rowNum_;
     int columnNum_;
+    bool isSimulationStarted_;
 };
 
 #endif // BFS_ALGORITHM_HPP_

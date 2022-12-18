@@ -35,7 +35,7 @@ public:
     , mouseAction_(0)
     , mouseButton_(0)
     , pathFinder_(nullptr)
-    , activeAlgorithmMode_(3)
+    , activeAlgorithmMode_(0)
     {}
     ~GridManager() {
         DeleteCells();
@@ -53,6 +53,9 @@ public:
         GUI.SetChangeGridSizeFn(std::bind(&GridManager::ChangeGridSize, this, std::placeholders::_1));
         GUI.SetActivePenFn(std::bind(&GridManager::SetActivePen, this, std::placeholders::_1));
         GUI.SetClearCellMatrixFn(std::bind(&GridManager::ClearCellMatrix, this));
+        GUI.SetActiveAlgorithmFn(std::bind(&GridManager::SetActiveAlgorithmMode, this, std::placeholders::_1));
+        GUI.SetStartSimulationFn(std::bind(&GridManager::StartSimulation, this));
+        GUI.SetStopSimulationFn(std::bind(&GridManager::StopSimulation, this));
         SetGridCells(GRID_SIZE_MODE_2.x, GRID_SIZE_MODE_2.y);
         pathFinder_ = PathFindingAlgorithmFactory::GetPathFindingAlgorithm(activeAlgorithmMode_);
         pathFinder_->CreateNodeMatrix(rowNum_, columnNum_);
@@ -87,34 +90,47 @@ private:
         activePen_ = activePen;
     }
     void ClearCellMatrix() {
-        pathFinder_->ResetNodeMatrix();
-        Index2D strInd(0, 0); Index2D finInd(0, 1);
-        startNodeInd_ = strInd; finalNodeInd_ = finInd;
-        for(int i = 0; i < totalCell_; i++) {
-            cells_[i].color = Style::Color::COLOR_EMPTY;
+        if(!pathFinder_->IsSimulationStarted()) {
+            pathFinder_->ResetNodeMatrix();
+            Index2D strInd(0, 0); Index2D finInd(0, 1);
+            startNodeInd_ = strInd; finalNodeInd_ = finInd;
+            for(int i = 0; i < totalCell_; i++) {
+                cells_[i].color = Style::Color::COLOR_EMPTY;
+            }      
+        }
+    }
+    void SetActiveAlgorithmMode(int activeAlgorithmMode) {
+        if(!pathFinder_->IsSimulationStarted()) { 
+            Node *** matrixBuff = pathFinder_->GetNodeMatrix();
+            activeAlgorithmMode_ = activeAlgorithmMode;
+            delete pathFinder_;
+            pathFinder_ = PathFindingAlgorithmFactory::GetPathFindingAlgorithm(activeAlgorithmMode_);
+            pathFinder_->SetNodeMatrix(matrixBuff);
         }
     }
     void DeleteCells() {
         delete[] cells_;
     }
     void ChangeGridSize(int gridSizeMode) {
-        ClearCellMatrix();
-        DeleteCells();
-        switch(gridSizeMode) {
-        case 1:
-            SetGridCells(GRID_SIZE_MODE_1.x, GRID_SIZE_MODE_1.y);
-            pathFinder_->CreateNodeMatrix(rowNum_, columnNum_);
-            break;
-        case 2:
-            SetGridCells(GRID_SIZE_MODE_2.x, GRID_SIZE_MODE_2.y);
-            pathFinder_->CreateNodeMatrix(rowNum_, columnNum_);
-            break;
-        case 3:
-            SetGridCells(GRID_SIZE_MODE_3.x, GRID_SIZE_MODE_3.y);
-            pathFinder_->CreateNodeMatrix(rowNum_, columnNum_);
-            break;
-        default:
-            break;
+        if(!pathFinder_->IsSimulationStarted()) {
+            ClearCellMatrix();
+            DeleteCells();
+            switch(gridSizeMode) {
+            case 1:
+                SetGridCells(GRID_SIZE_MODE_1.x, GRID_SIZE_MODE_1.y);
+                pathFinder_->CreateNodeMatrix(rowNum_, columnNum_);
+                break;
+            case 2:
+                SetGridCells(GRID_SIZE_MODE_2.x, GRID_SIZE_MODE_2.y);
+                pathFinder_->CreateNodeMatrix(rowNum_, columnNum_);
+                break;
+            case 3:
+                SetGridCells(GRID_SIZE_MODE_3.x, GRID_SIZE_MODE_3.y);
+                pathFinder_->CreateNodeMatrix(rowNum_, columnNum_);
+                break;
+            default:
+                break;
+            }
         }
     }
     void KeyHandler(int key, int action) {
@@ -124,9 +140,12 @@ private:
                 if(activePen_ == Style::Pen::PEN_MAX) {
                     activePen_ = 0;
                 }
+                GUI.SetSelectedPenType(activePen_);
+            } else if(key == GLFW_KEY_P) {
+                StartSimulation();
             }
-            if(key == GLFW_KEY_P) {
-                pathFinder_->StartPathFindingSimulation(startNodeInd_, finalNodeInd_);
+            else if(key == GLFW_KEY_C) {
+                ClearCellMatrix();
             }
         }
     }
@@ -141,7 +160,7 @@ private:
         MouseButtonCalc();
     }
     void MouseButtonCalc() {
-        if(mouseAction_ == GLFW_PRESS) {
+        if(!pathFinder_->IsSimulationStarted() && mouseAction_ == GLFW_PRESS) {
             Index2D indexPos = ResolutionToIndexPos(mousePos_);
             int i = indexPos.i * columnNum_ + indexPos.j;
             Node *** tmpMatrix = pathFinder_->GetNodeMatrix();
@@ -189,7 +208,14 @@ private:
         cells_[startNodeInd_.i * columnNum_ + startNodeInd_.j].color = Style::Color::COLOR_START;
         cells_[finalNodeInd_.i * columnNum_ + finalNodeInd_.j].color = Style::Color::COLOR_FINAL;
     }
-
+    void StartSimulation() {
+        if(!pathFinder_->IsSimulationStarted()) {
+            pathFinder_->StartPathFindingSimulation(startNodeInd_, finalNodeInd_);
+        }
+    }
+    void StopSimulation() {
+        pathFinder_->StopPathFindingSimulation();
+    }
     Index2D ResolutionToIndexPos(Position2D resPos) {
         int columnIndex = resPos.x / (CELL_SPACE_PIXEL + cellSize_);
         int rowIndex = resPos.y / (CELL_SPACE_PIXEL + cellSize_);

@@ -9,6 +9,7 @@
 #include "GLFW/glfw3.h"
 
 #include "GridParameters.h"
+#include "GuiManager.hpp"
 
 #define WINDOW WindowManager::Instance()
 
@@ -68,6 +69,10 @@ public:
         mousePosCallbackFn_(xpos, ypos);
     }
     static void mouse_button_callback(GLFWwindow* window, int button, int action, int mods) {
+        auto io = GUI.GetGuiIO();
+        if(io->WantCaptureMouse || io->WantCaptureKeyboard) {
+            return;
+        }
         mouseButtonCallbackFn_(button, action);
     }
     void PreRender() {

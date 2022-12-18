@@ -16,10 +16,14 @@ public:
     , currentNode_(nullptr)
     , rowNum_(0)
     , columnNum_(0)
+    , isSimulationStarted_(false)
     {}
     ~AStarAlgorithm() {}
     Node *** GetNodeMatrix() {
         return matrix_;
+    }
+    void SetNodeMatrix(Node *** matrix) {
+        matrix_ = matrix;
     }
     Node * GetCurrentNode() {
         return currentNode_;
@@ -66,12 +70,19 @@ public:
         closedSet_.clear();
         openedSet_.clear();
         currentNode_ = nullptr;
+        isSimulationStarted_ = true;
         std::thread th(&FindShortestPath, this, startInd, endInd);
         th.detach();
     }
+    void StopPathFindingSimulation() {
+        isSimulationStarted_ = false;
+    }
+    bool IsSimulationStarted() {
+        return isSimulationStarted_;
+    }
     void FindShortestPath(Index2D startInd, Index2D endInd) override {
         openedSet_.insert(matrix_[startInd.i][startInd.j]);
-        while(true) {
+        while(isSimulationStarted_) {
             currentNode_ = GetLowestCostNode();
             openedSet_.erase(currentNode_);
             closedSet_.insert(currentNode_);
@@ -146,6 +157,7 @@ private:
     Node * currentNode_;
     int rowNum_;
     int columnNum_;
+    bool isSimulationStarted_;
 };
 
 #endif // A_STAR_ALGORITHM_HPP_
