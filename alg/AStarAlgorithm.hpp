@@ -72,7 +72,7 @@ public:
         openedSet_.clear();
         currentNode_ = nullptr;
         isSimulationStarted_ = true;
-        std::thread th(&FindShortestPath, this, startInd, endInd);
+        std::thread th(&AStarAlgorithm::FindShortestPath, this, startInd, endInd);
         th.detach();
     }
     void StopPathFindingSimulation() {
